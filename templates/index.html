@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>todo</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/6.26.0/babel.min.js"></script>
+    <script src="https://unpkg.com/react@17/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
+    <style>
+        body{
+            margin: 0%;
+            background: linear-gradient(90deg, rgb(231, 231, 200), white)
+        }
+        
+        main {
+                    margin: 8%;
+                    display: grid;
+                    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+                    grid-gap: 20px;
+                }
+                nav{
+                            background-color: rgba(0, 0, 0, 0.751);
+                            color: white;
+                            display: flex;
+                            justify-content: space-evenly;
+                            position: sticky;
+                            top: 0%;
+                            z-index: 1;
+                        }
+        .recipie-display {
+            border: 3px solid rgb(34, 140, 76);
+            padding: 10px;
+            margin: 10px;
+            border-radius: 10px;
+            box-shadow: 1px 1px 1px;
+            background: linear-gradient(90deg, rgba(0, 0, 0, 0.626), darkblue);
+            color: white;
+            .img{
+                aspect-ratio: 3/2;
+            }
+            img{
+                width: 100%;
+                height: 100%;
+            }
+        }
+        .recipie-display ul {
+            padding: 4px;
+            list-style: none;
+        }
+        .buttons {
+            padding: 4px;
+        }
+        @keyframes jump {
+  
+        50%{
+            transform: translateY(-10px) scale(1.03);
+        
+        }
+        }
+        
+        .recipie-display:hover{
+            cursor: pointer;
+            animation: jump 2s;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <p>home</p>
+        <p>home</p>
+        <p>home</p>
+    </nav>
+    <div id="root">
+        <main id="recipes"><div class="recipie-display"><div class="img"><img src="https://t3.ftcdn.net/jpg/02/52/38/80/360_F_252388016_KjPnB9vglSCuUJAumCDNbmMzGdzPAucK.jpg" alt=""></div><h1>shepherd's pie</h1><ul><li><input type="checkbox"> potatoes: 3</li><li><input type="checkbox"> meat: 2</li><li><input type="checkbox"> eggs: 4</li></ul><div class="buttons"><button>Sort</button><button>Alphabetize</button><button>Double</button></div></div><div class="recipie-display"><div class="img"><img src="https://t3.ftcdn.net/jpg/02/52/38/80/360_F_252388016_KjPnB9vglSCuUJAumCDNbmMzGdzPAucK.jpg" alt=""></div><h1>spaghetti bolognese</h1><ul><li><input type="checkbox"> spaghetti: 1</li><li><input type="checkbox"> ground beef: 1</li><li><input type="checkbox"> tomato sauce: 1</li></ul><div class="buttons"><button>Sort</button><button>Alphabetize</button><button>Double</button></div></div><div class="recipie-display"><div class="img"><img src="https://t3.ftcdn.net/jpg/02/52/38/80/360_F_252388016_KjPnB9vglSCuUJAumCDNbmMzGdzPAucK.jpg" alt=""></div><h1>chocolate chip cookies</h1><ul><li><input type="checkbox"> flour: 2</li><li><input type="checkbox"> sugar: 1</li><li><input type="checkbox"> chocolate chips: 1</li><li><input type="checkbox"> butter: 1</li></ul><div class="buttons"><button>Sort</button><button>Alphabetize</button><button>Double</button></div></div></main>
+
+    </div>
+    <script type="text/babel">
+        function Recipe({ingredients, name, index, inFullScreen}) {
+            const [placeholder, rerender] = React.useState(true);
+
+            inFullScreen? set_url(`/${name}`): '';
+
+
+            function sortIngredients() {
+                ingredients.sort((a, b) => a.amount - b.amount);
+                recipes[index].ingredients = ingredients;
+                rerender(!placeholder);
+            }
+
+            function alphabetize() {
+                ingredients.sort((a, b) => a.ingredient.localeCompare(b.ingredient));
+                recipes[index].ingredients = ingredients;
+                rerender(!placeholder);
+            }
+
+            function double() {
+                ingredients.forEach(item => item.amount *= 2);
+                recipes[index].ingredients = ingredients;
+                rerender(!placeholder);
+            }
+
+            const goto=React.useContext(context)
+
+            return (
+                <div className="recipie-display" onClick={() => goto(index)}>
+                    <div className="img">
+                        <img src="https://t3.ftcdn.net/jpg/02/52/38/80/360_F_252388016_KjPnB9vglSCuUJAumCDNbmMzGdzPAucK.jpg" alt=""/>
+                    </div>
+                    
+                    <h1>{name}</h1>
+                    <ul>
+                        {ingredients.map((ingredient, index) => (
+                            <li key={ingredient.ingredient}>
+                                <input type="checkbox" /> {ingredient.ingredient}: {ingredient.amount}
+                            </li>
+                        ))}
+                    </ul>
+                    <div className="buttons">
+                        <button onClick={sortIngredients}>Sort</button>
+                        <button onClick={alphabetize}>Alphabetize</button>
+                        <button onClick={double}>Double</button>
+                    </div>
+                </div>
+            );
+        }
+
+        function AllRecipies() {
+            set_url("/")
+            return (
+                <main id="recipes">
+                    {recipes.map((recipe, index) => (
+                        <Recipe {...recipe} key={index} index={index} />
+                    ))}
+                </main>
+            );
+        }
+        function App(){
+            const [showAlll, setShowAlll] = React.useState(true)
+            const [indexOfShowing, setIndexOfShowing] = React.useState(0)
+            
+            function goto(index){
+                setIndexOfShowing(index)
+                setShowAlll(false)
+            }
+
+            function viewAll(){
+                setShowAlll(true)
+            }
+            
+            return (
+                <context.Provider value={goto}>
+                    {showAlll? "": <button onClick={viewAll}>back</button>}
+                    {showAlll ? <AllRecipies /> : <Recipe key={indexOfShowing} {...recipes[indexOfShowing]} index={indexOfShowing} inFullScreen={!showAlll}/>}
+                </context.Provider>
+                )
+        }
+
+        const context  = React.createContext()
+
+        let recipes;
+
+        function set_url(url){
+            return
+        const newURL = url;
+        const newState = { page: "newPage" }; // You can pass any data as the state object
+
+        // Add a new state to the history stack and change the URL
+        window.history.pushState(newState, "", newURL);
+        }
+
+
+        function load_recipies_from_url(url){
+
+            
+            fetch(url).then (res => {
+                return res.json()
+            }).then(data => {
+                console.log({data})
+            recipes = data
+            console.log({recipes})
+        ReactDOM.render(<App />, document.getElementById('root'));
+    })
+    }
+
+ load_recipies_from_url("http://127.0.0.1:8000/recipes")
+
+    const ws = new WebSocket("/ws")
+
+    const message_types = {
+        "alert": alert
+    }
+
+    ws.onopen = function(event) {
+            console.log('Connected to the WebSocket server');
+            // Optionally, send a message to the server
+            ws.send('Hello Server!');
+        };
+
+    ws.onmessage = (message) => {
+        const data = message.data
+        console.log({data})
+        const message_type = message_types[data.split("-")[0]]
+        const messageEnd = data.split("-")[1]
+        message_type(messageEnd)
+    }
+
+    ws.onclose = () => {
+        window.location = "/"
+    }
+
+
+
+
+
+
+</script>
+</body>
+</html>
